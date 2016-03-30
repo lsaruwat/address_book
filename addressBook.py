@@ -30,6 +30,7 @@ class Interface(object):
 
 	def __init__(self): # Pretty much don't do anything. It feels wrong to connect the db automatically
 		print("Welcome to the Address Book")
+		self.running = True
 
 	def connect(self): # Connect to the db. Want to make singleton pattern if time permits
 
@@ -64,9 +65,39 @@ class Interface(object):
 		self.cur.execute(sql)
 		self.connection.commit()
 
+	def prettyPrint(self, fetchAllQuery):
+		for i in fetchAllQuery:
+			print(i)
+
+	def routeInput(self, intInput):
+		#wow I just realized there is no switch/case in python.
+		#Although that makes this harder I understand why they left it out.
+		#Prepare yourself for gross giant if elif blocks
+
+		if intInput == 1:
+			pass
+		elif intInput == 2:
+			self.clearScreen()
+			self.prettyPrint(self.getAllContacts())
+			input("press any key to continue")
+		elif intInput == 3:
+			pass
+		elif intInput == 4:
+			pass
+		elif intInput == 5:
+			pass
+		elif intInput == 6:
+			pass
+		elif intInput == 7:
+			self.running = False
+			print("KTHXBAI")
+		else:
+			print("Edge case occurred! This is why unit testing exists Logan... I think... I'll know ten years from now")
+
+
 	def clearScreen(self):
 		system('cls' if osName == 'nt' else 'clear') 
-		# cross platform clearing of terminal. nt is apparently windows clear and cls are system calls
+		# cross platform clearing of terminal. clear and cls are system calls
 
 	def showOptions(self, message="Please select a number"): # Show the user what they can do to the address book.
 		self.clearScreen()
@@ -77,10 +108,24 @@ class Interface(object):
 		print("1. Create Contact          2. List Contacts")
 		print("3. Search Contact          4. Update Contact")
 		print("5. Delete Contact          6. Sort Contacts")
+		print("7. Quit Address Book")
+		print("\n")
 		userChoice = input(message)
 
-		if userChoice.isdigit() and int(userChoice) > 0 and int(userChoice) < 7: # input is between 1 and 6
+		if userChoice.isdigit() and int(userChoice) > 0 and int(userChoice) < 8: # input is between 1 and 6
 			print(userChoice, " is valid")
+			running = self.routeInput(int(userChoice))
+		else: # if the users input is nonsense recurse with error message
+			self.showOptions("Invalid Selection!\nPlease select a number")
+
+
+
+	def run(self):
+		
+		while self.running:
+			self.showOptions()
+
+
 
 
 #cur.execute('''CREATE TABLE contact
@@ -102,8 +147,8 @@ logan = Contact('Logan', 'Saruwatari', '9702703575', 'lsaruwatari@gmail.com')
 addressBook = Interface()
 
 addressBook.connect()
-addressBook.insertContact(Contact("Eric", "Ziegler", "9702704565", "eziegler@gmail.com"))
+#addressBook.insertContact(Contact("Eric", "Ziegler", "9702704565", "eziegler@gmail.com"))
 print(addressBook.getAllContacts())
-addressBook.showOptions()
+addressBook.run()
 
 addressBook.close()
