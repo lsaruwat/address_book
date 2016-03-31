@@ -28,6 +28,8 @@ from os import name as osName
 
 class Interface(object):
 
+	enumColumn = ("fName", "lName", "phone", "email")
+
 	def __init__(self): # Pretty much don't do anything. It feels wrong to connect the db automatically
 		print("Welcome to the Address Book")
 		self.running = True
@@ -51,18 +53,18 @@ class Interface(object):
 		return self.cur.fetchall()
 
 	def removeByName(self, _fName, _lName): #remove a contact by full name. Potential for this not being a unique entry...dangerous
-		sql = "DELETE FROM contact WHERE fName='{}' AND lName='{}'".format(_fName, _lName)
-		self.cur.execute(sql)
+		sql = "DELETE FROM contact WHERE fName=? AND lName=?"
+		self.cur.execute(sql, (_fName, _lName))
 		self.connection.commit()
 
 	def removeById(self, _id): #remove a contact by id. Using built in ROWID which seems to be a unique identifier
-		sql = "DELETE FROM contact WHERE ROWID={}".format(_id)
-		self.cur.execute(sql)
+		sql = "DELETE FROM contact WHERE ROWID=?"
+		self.cur.execute(sql, (_id))
 		self.connection.commit()
 
 	def removeByPhone(self, _phone): # remove by phone number.
-		sql = "DELETE FROM contact WHERE phone={}".format(_phone)
-		self.cur.execute(sql)
+		sql = "DELETE FROM contact WHERE phone=?"
+		self.cur.execute(sql, (_phone))
 		self.connection.commit()
 
 	def prettyPrint(self, fetchAllQuery):
@@ -94,6 +96,20 @@ class Interface(object):
 		sql="UPDATE contact SET fName=?, lName=?, phone=?, email=? WHERE ROWID=?"
 		self.cur.execute(sql, (fname, lname, phone, email, rowId))
 		self.connection.commit()
+
+	def sortByColumn(self):
+		self.clearScreen()
+		print("How would you like your contacts sorted?\n")
+		print("1. First Name           2. Last Name")
+		print("3. Phone Number         4. Email")
+
+		columnToSort = input("Please select a Number: ")
+		if columnToSort.isdigit() and int(columnToSort) > 0 and int(columnToSort) < 5:# input is a valid int
+			sql = "SELECT ROWID, fName, lName, phone, email FROM contact ORDER BY ? ASC"
+			
+			self.cur.execute( sql, (self.enumColumn[int(columnToSort)-1],) )
+			self.prettyPrint(self.cur.fetchall())
+			input("Press any key to continue")
 
 	def routeInput(self, intInput):
 		#wow I just realized there is no switch/case in python.
@@ -128,7 +144,8 @@ class Interface(object):
 				self.removeById(int(idToUpdate))
 
 		elif intInput == 6:
-			pass
+			self.sortByColumn()
+
 		elif intInput == 7:
 			self.running = False
 			print("KTHXBAI")
