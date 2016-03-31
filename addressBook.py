@@ -67,25 +67,66 @@ class Interface(object):
 
 	def prettyPrint(self, fetchAllQuery):
 		for i in fetchAllQuery:
-			print(i)
+			print("{}   {} {}   {}   {}".format(i[0], i[1],i[2], i[3], i[4]))
+
+	def createContact(self):
+		fname = input("Enter First Name: ")
+		lname = input("Enter Last Name: ")
+		phone = input("Enter Phone Number: ")
+		email = input("Enter Email Address: ")
+
+		self.insertContact(Contact(fname, lname, phone, email))
+
+	def searchByName(self, searchPrompt="Enter a Name to search for: "):
+		search = input(searchPrompt)
+
+		sql = "SELECT ROWID, fName, lName, phone, email FROM contact WHERE fName LIKE ? OR lName LIKE ? OR email LIKE ?"
+		self.cur.execute(sql, ("%"+search+"%", "%"+search+"%", "%"+search+"%")) # % is the wildcard that sqlite3 uses
+		return self.cur.fetchall()
+
+	def updateById(self, rowId):
+
+		fname = input("Enter New First Name: ")
+		lname = input("Enter New Last Name: ")
+		phone = input("Enter New Phone Number: ")
+		email = input("Enter New Email Address: ")
+
+		sql="UPDATE contact SET fName=?, lName=?, phone=?, email=? WHERE ROWID=?"
+		self.cur.execute(sql, (fname, lname, phone, email, rowId))
+		self.connection.commit()
 
 	def routeInput(self, intInput):
 		#wow I just realized there is no switch/case in python.
 		#Although that makes this harder I understand why they left it out.
-		#Prepare yourself for gross giant if elif blocks
 
 		if intInput == 1:
-			pass
+			self.clearScreen()
+			self.createContact()
+
 		elif intInput == 2:
 			self.clearScreen()
 			self.prettyPrint(self.getAllContacts())
 			input("press any key to continue")
+
 		elif intInput == 3:
-			pass
+			self.clearScreen()
+			self.prettyPrint(self.searchByName())
+			input("press any key to continue")
+
 		elif intInput == 4:
-			pass
+			self.clearScreen()
+			self.prettyPrint(self.searchByName("Enter a Name to Update: "))
+			idToUpdate = input("Enter the id you wish to update or letter to cancel: ")
+			if idToUpdate.isdigit():
+				self.updateById(int(idToUpdate))
+
 		elif intInput == 5:
-			pass
+			self.clearScreen()
+			self.prettyPrint(self.searchByName("Enter a Name to Delete: "))
+			idToUpdate = input("Enter the id you wish to Delete or letter to cancel: ")
+			if idToUpdate.isdigit():
+				self.removeById(int(idToUpdate))
+
 		elif intInput == 6:
 			pass
 		elif intInput == 7:
@@ -99,7 +140,7 @@ class Interface(object):
 		system('cls' if osName == 'nt' else 'clear') 
 		# cross platform clearing of terminal. clear and cls are system calls
 
-	def showOptions(self, message="Please select a number"): # Show the user what they can do to the address book.
+	def showOptions(self, message="Please select a number: "): # Show the user what they can do to the address book.
 		self.clearScreen()
 
 		print("-------------Address Book-------------")
