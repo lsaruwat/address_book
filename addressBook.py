@@ -1,30 +1,13 @@
+#Assignment 3 Address Book
+#CS310 Python
+#By: Logan Saruwatari
+#Date: 3/30/2016
+#Copyright MIT license
+
 import sqlite3
 from os import system
 from os import name as osName
 
-# Address Book Manager Using SQLite Database 
-
-# Design and develop a menu driven Address/Contact book program with command-line interface to interact with SQLite database.
-
-# Create a sqlite database file called “contact.db” and design a table called contact with fields to store following information at a minimum: First Name, Last Name, Phone, and Email.
-
-# Program must allow user to enter new contact information.
-
-# Program must allow user to search, display and update an existing contact’s information.
-
-# Program must provide an option to display all existing contacts’ information in a nice tabular format.
-
-# Program must provide option to sort and display contacts based on any field user wants to.
-
-# Program must provide option to search and delete an existing contact.
-
-# Project must be hosted as a private git repository in bitbucket.org and add rambasnet@gmail.com as a team member in the project.
-
-# Be sure to write program and programmer information clearly at the top of your Python source files.
-
-# Deliverables and Due:
-
-# Upload all the *.py and contact.db database file into Homework 3 dropbox in D2L before due date.
 
 class Interface(object):
 
@@ -114,6 +97,7 @@ class Interface(object):
 			self.cur.execute(sql)
 			self.prettyPrint(self.cur.fetchall())
 			input("Press any key to continue")
+		else:	self.sortByColumn()
 
 	def routeInput(self, intInput):
 		#wow I just realized there is no switch/case in python.
@@ -188,12 +172,6 @@ class Interface(object):
 			self.showOptions()
 
 
-
-
-#cur.execute('''CREATE TABLE contact
-#             (fName text, lName text, phone text, email text)''')
-
-
 class Contact(object):
 
 
@@ -204,13 +182,9 @@ class Contact(object):
 		self.email = _email
 
 
-logan = Contact('Logan', 'Saruwatari', '9702703575', 'lsaruwatari@gmail.com')
-
 addressBook = Interface()
 
 addressBook.connect()
-print(addressBook.selectThisThing("fName"))
-#addressBook.insertContact(Contact("Eric", "Ziegler", "9702704565", "eziegler@gmail.com"))
 print(addressBook.getAllContacts())
 addressBook.run()
 
