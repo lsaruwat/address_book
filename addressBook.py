@@ -28,7 +28,7 @@ from os import name as osName
 
 class Interface(object):
 
-	enumColumn = ("fName", "lName", "phone", "email")
+	enumColumn = ('fName', 'lName', 'phone', 'email')
 
 	def __init__(self): # Pretty much don't do anything. It feels wrong to connect the db automatically
 		print("Welcome to the Address Book")
@@ -97,6 +97,11 @@ class Interface(object):
 		self.cur.execute(sql, (fname, lname, phone, email, rowId))
 		self.connection.commit()
 
+	def selectThisThing(self, thing):
+		sql = "SELECT ? FROM contact"
+		self.cur.execute( sql, (thing,) )
+		return self.cur.fetchall()
+
 	def sortByColumn(self):
 		self.clearScreen()
 		print("How would you like your contacts sorted?\n")
@@ -105,9 +110,8 @@ class Interface(object):
 
 		columnToSort = input("Please select a Number: ")
 		if columnToSort.isdigit() and int(columnToSort) > 0 and int(columnToSort) < 5:# input is a valid int
-			sql = "SELECT ROWID, fName, lName, phone, email FROM contact ORDER BY ? ASC"
-			
-			self.cur.execute( sql, (self.enumColumn[int(columnToSort)-1],) )
+			sql = "SELECT ROWID, fName, lName, phone, email FROM contact ORDER BY {} ASC".format(self.enumColumn[int(columnToSort)-1]) # the question mark escape doesn't work for strings in program memory. Idk why
+			self.cur.execute(sql)
 			self.prettyPrint(self.cur.fetchall())
 			input("Press any key to continue")
 
@@ -205,6 +209,7 @@ logan = Contact('Logan', 'Saruwatari', '9702703575', 'lsaruwatari@gmail.com')
 addressBook = Interface()
 
 addressBook.connect()
+print(addressBook.selectThisThing("fName"))
 #addressBook.insertContact(Contact("Eric", "Ziegler", "9702704565", "eziegler@gmail.com"))
 print(addressBook.getAllContacts())
 addressBook.run()
